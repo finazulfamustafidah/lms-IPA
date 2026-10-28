@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Masuk – LMS Praktikum IPA</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><h1>🔦 LMS Praktikum IPA – Cahaya</h1></header>
+<main style="max-width:480px">
+  <div class="card">
+    <h2>Selamat datang!</h2>
+    <div class="tabs">
+      <button class="tab on" id="tS">🎒 Murid</button>
+      <button class="tab" id="tT">👩‍🏫 Tutor</button>
+    </div>
+    <form id="fS">
+      <label for="nama">Nama kamu</label>
+      <input id="nama" placeholder="Tulis nama lengkap" required>
+      <div class="row"><button class="btn green">Masuk sebagai Murid</button></div>
+    </form>
+    <form id="fT" class="hidden">
+      <label for="pw">Password tutor</label>
+      <input id="pw" type="password" required>
+      <div class="row"><button class="btn">Masuk sebagai Tutor</button></div>
+      <p id="err" class="note" style="color:#c00"></p>
+    </form>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+const u = getUser();
+if (u) location.href = u.role === "tutor" ? "tutor.html" : "siswa.html";
+tS.onclick = () => { tS.classList.add("on"); tT.classList.remove("on"); fS.classList.remove("hidden"); fT.classList.add("hidden"); };
+tT.onclick = () => { tT.classList.add("on"); tS.classList.remove("on"); fT.classList.remove("hidden"); fS.classList.add("hidden"); };
+fS.onsubmit = e => { e.preventDefault(); save("lms_user", { role: "siswa", nama: nama.value.trim() }); location.href = "siswa.html"; };
+fT.onsubmit = e => {
+  e.preventDefault();
+  if (pw.value === CONFIG.PASSWORD_TUTOR) { save("lms_user", { role: "tutor", nama: "Tutor" }); location.href = "tutor.html"; }
+  else err.textContent = "Password salah.";
+};
+</script></body></html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 2 – Cahaya Menembus Benda Bening</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;padding:12px;background:#fff8e7;color:#333}
+canvas{width:100%;max-width:720px;background:#1b2440;border-radius:12px;display:block;margin:auto}
+#btns{max-width:720px;margin:10px auto;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+button{border:2px solid #2f6fed;background:#fff;color:#2f6fed;border-radius:999px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:15px}
+button.on{background:#2f6fed;color:#fff}
+#msg{max-width:720px;margin:10px auto;padding:12px;border-radius:12px;font-size:18px;font-weight:700;text-align:center;background:#e4f0ff;color:#173c8a}
+h3{text-align:center;margin:4px}p.t{text-align:center;margin:4px}
+</style></head><body>
+<h3>🪟 Lab: Cahaya Menembus Benda</h3>
+<p class="t">Pilih benda yang diletakkan di depan senter. Seberapa terang cahaya di layar?</p>
+<canvas id="c" width="720" height="360"></canvas>
+<div id="btns"></div>
+<div id="msg"></div>
+<script>
+const M=[
+ {n:'Kaca bening',t:.95,c:'rgba(170,220,255,.45)',j:'Benda BENING: hampir semua cahaya diteruskan. Benda di belakangnya terlihat jelas.'},
+ {n:'Plastik bening',t:.9,c:'rgba(200,230,255,.4)',j:'Benda BENING: cahaya diteruskan hampir semuanya.'},
+ {n:'Air jernih',t:.85,c:'rgba(90,170,255,.4)',j:'Benda BENING: cahaya dapat menembus air jernih.'},
+ {n:'Kertas minyak',t:.45,c:'rgba(255,245,200,.75)',j:'Benda TEMBUS CAHAYA SEBAGIAN (buram): cahaya diteruskan, tetapi hanya sebagian.'},
+ {n:'Karton',t:0,c:'#b9875a',j:'Benda GELAP (tidak bening): cahaya tidak diteruskan. Terbentuk bayangan.'},
+ {n:'Kayu',t:0,c:'#7a4b24',j:'Benda GELAP (tidak bening): cahaya terhalang seluruhnya.'}
+];
+let cur=0;
+const c=document.getElementById('c'),x=c.getContext('2d');
+const bt=document.getElementById('btns');
+M.forEach((m,i)=>{const b=document.createElement('button');b.textContent=m.n;b.onclick=()=>{cur=i;draw()};bt.appendChild(b);});
+function draw(){
+  const m=M[cur];
+  [...bt.children].forEach((b,i)=>b.className=i==cur?'on':'');
+  x.clearRect(0,0,720,360);
+  // senter
+  x.fillStyle='#ff9f1c';x.fillRect(20,160,60,40);x.fillStyle='#ffd23f';x.fillRect(76,154,12,52);
+  // sinar sebelum benda
+  x.fillStyle='rgba(255,230,90,.9)';x.fillRect(88,170,222,20);
+  // benda
+  x.fillStyle=m.c;x.fillRect(310,110,40,140);
+  x.strokeStyle='#fff';x.lineWidth=2;x.strokeRect(310,110,40,140);
+  // sinar setelah benda
+  x.fillStyle='rgba(255,230,90,'+m.t+')';x.fillRect(350,170,290,20);
+  // layar
+  x.fillStyle='#eee';x.fillRect(640,90,16,180);
+  if(m.t>0){
+    const rg=x.createRadialGradient(644,180,2,644,180,34);
+    rg.addColorStop(0,'rgba(255,240,120,'+m.t+')');rg.addColorStop(1,'rgba(255,240,120,0)');
+    x.fillStyle=rg;x.beginPath();x.arc(644,180,34,0,7);x.fill();
+  }else{
+    x.fillStyle='rgba(0,0,0,.35)';x.fillRect(640,90,16,180);
+  }
+  x.fillStyle='#fff';x.font='bold 15px sans-serif';x.textAlign='center';
+  x.fillText(m.n,330,100);x.fillText('Layar',648,80);
+  document.getElementById('msg').textContent=m.j;
+}
+draw();
+</script></body></html>

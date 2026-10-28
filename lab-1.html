@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 1 – Cahaya Merambat Lurus</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;padding:12px;background:#fff8e7;color:#333}
+canvas{width:100%;max-width:720px;background:#1b2440;border-radius:12px;display:block;margin:auto}
+.ctrl{max-width:720px;margin:10px auto;display:grid;gap:6px}
+label{font-weight:600}input[type=range]{width:100%}
+#msg{max-width:720px;margin:10px auto;padding:12px;border-radius:12px;font-size:18px;font-weight:700;text-align:center}
+.ok{background:#d7f7d4;color:#1b6b1b}.no{background:#ffe0e0;color:#a11}
+h3{text-align:center;margin:4px}p.t{text-align:center;margin:4px}
+</style></head><body>
+<h3>🔦 Lab: Cahaya Merambat Lurus</h3>
+<p class="t">Geser lubang tiga kartu agar segaris dengan senter. Apa yang terjadi pada cahaya?</p>
+<canvas id="c" width="720" height="360"></canvas>
+<div class="ctrl">
+  <label>Lubang kartu 1 <input type="range" id="h0" min="50" max="310" value="120"></label>
+  <label>Lubang kartu 2 <input type="range" id="h1" min="50" max="310" value="250"></label>
+  <label>Lubang kartu 3 <input type="range" id="h2" min="50" max="310" value="90"></label>
+</div>
+<div id="msg"></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+const LY=180,CX=[250,380,510],R=16,SX=650;
+const hs=[0,1,2].map(i=>document.getElementById('h'+i));
+function draw(){
+  x.clearRect(0,0,720,360);
+  const h=hs.map(s=>+s.value);
+  let endX=SX,blocked=-1;
+  for(let i=0;i<3;i++){ if(Math.abs(h[i]-LY)>R){endX=CX[i]-2;blocked=i;break;} }
+  // sinar
+  const g=x.createLinearGradient(80,0,endX,0);
+  g.addColorStop(0,'rgba(255,230,90,.95)');g.addColorStop(1,'rgba(255,230,90,.6)');
+  x.strokeStyle=g;x.lineWidth=8;x.lineCap='round';
+  x.beginPath();x.moveTo(80,LY);x.lineTo(endX,LY);x.stroke();
+  // senter
+  x.fillStyle='#ff9f1c';x.fillRect(20,LY-22,60,44);
+  x.fillStyle='#ffd23f';x.fillRect(76,LY-28,12,56);
+  // kartu
+  CX.forEach((cx,i)=>{
+    x.fillStyle='#c98f4a';
+    x.fillRect(cx-7,30,14,h[i]-R-30);
+    x.fillRect(cx-7,h[i]+R,14,330-(h[i]+R));
+    x.fillStyle='#fff';x.font='bold 14px sans-serif';x.textAlign='center';
+    x.fillText('Kartu '+(i+1),cx,22);
+  });
+  // layar
+  x.fillStyle='#eee';x.fillRect(SX,60,14,240);
+  x.fillStyle='#fff';x.font='bold 14px sans-serif';x.fillText('Layar',SX+7,50);
+  if(blocked<0){
+    const rg=x.createRadialGradient(SX,LY,2,SX,LY,26);
+    rg.addColorStop(0,'rgba(255,240,120,1)');rg.addColorStop(1,'rgba(255,240,120,0)');
+    x.fillStyle=rg;x.beginPath();x.arc(SX+4,LY,26,0,7);x.fill();
+  }
+  const m=document.getElementById('msg');
+  if(blocked<0){m.className='ok';m.textContent='✅ Cahaya sampai ke layar! Cahaya merambat lurus, jadi ketiga lubang harus segaris.';}
+  else{m.className='no';m.textContent='⛔ Cahaya terhalang kartu '+(blocked+1)+'. Geser lubangnya agar segaris dengan senter.';}
+}
+hs.forEach(s=>s.oninput=draw);draw();
+</script></body></html>

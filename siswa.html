@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Beranda Murid</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><h1>🔦 Praktikum IPA – Cahaya</h1>
+  <div><span id="hi"></span> <button class="btn sec" onclick="logout()">Keluar</button></div></header>
+<main>
+  <h2>Pilih tema praktikum 👇</h2>
+  <p class="note">Setiap tema punya 3 langkah: ① Orientasi Masalah (video) → ② Virtual Lab → ③ Gamifikasi.</p>
+  <div class="grid" id="grid"></div>
+</main>
+<script src="app.js"></script>
+<script>
+const u = getUser();
+if (!u || u.role !== "siswa") location.href = "index.html";
+hi.textContent = "Halo, " + u.nama + "! ";
+grid.innerHTML = TEMA.map(t => `
+  <a class="card tema" href="tema.html?id=${t.id}">
+    <div class="ikon">${t.ikon}</div>
+    <small>Tema ${t.id}</small>
+    <h3>${t.judul}</h3>
+    <div class="bar"><i style="width:${pct(u.nama, t.id)}%"></i></div>
+    <small>${pct(u.nama, t.id)}% selesai</small>
+  </a>`).join("");
+</script></body></html>

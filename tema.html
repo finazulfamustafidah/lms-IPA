@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tema Praktikum</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><h1 id="judul"></h1><a class="btn sec" href="siswa.html">⬅ Beranda</a></header>
+<main>
+  <div class="tabs">
+    <button class="tab on" data-s="orientasi">① Orientasi Masalah</button>
+    <button class="tab" data-s="lab">② Virtual Lab</button>
+    <button class="tab" data-s="game">③ Gamifikasi</button>
+  </div>
+  <div class="card" id="panel"></div>
+</main>
+<script src="app.js"></script>
+<script>
+const u = getUser();
+if (!u || u.role !== "siswa") location.href = "index.html";
+const id = +new URLSearchParams(location.search).get("id");
+const t = TEMA.find(x => x.id === id);
+if (!t) location.href = "siswa.html";
+judul.textContent = t.ikon + " " + t.judul;
+const L = getLinks()[id];
+
+function doneBtn(key) {
+  const sudah = ((getProgress()[u.nama] || {})[id] || {})[key];
+  return `<div class="row"><button class="btn green" id="done" ${sudah ? "disabled" : ""}>${sudah ? "✅ Sudah selesai" : "✅ Saya sudah selesai"}</button></div>`;
+}
+function bindDone(key) {
+  const b = document.getElementById("done");
+  b.onclick = () => { setDone(u.nama, id, key); b.disabled = true; b.textContent = "✅ Sudah selesai"; };
+}
+function frame(url, pesan, cls) {
+  const e = toEmbed(url);
+  if (!e) return `<div class="kosong">${pesan}</div>`;
+  return `<iframe class="frame ${cls || ""}" src="${e}" allowfullscreen allow="autoplay; encrypted-media; fullscreen"></iframe>
+          <p class="note">Tidak tampil? <a href="${e}" target="_blank" rel="noopener">Buka di tab baru</a></p>`;
+}
+
+function show(s) {
+  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.s === s));
+  let h = "";
+  if (s === "orientasi") {
+    h = `<h3>Orientasi Masalah</h3><p>Tonton videonya, lalu pikirkan: apa yang terjadi pada cahaya?</p>`
+      + frame(L.orientasi, "⏳ Video orientasi masalah belum dipasang oleh tutor.");
+  } else if (s === "lab") {
+    h = `<h3>Virtual Lab</h3><p>Coba geser, klik, dan amati. Catat apa yang kamu temukan!</p>
+         <iframe class="frame lab" src="${t.lab}"></iframe>`;
+  } else {
+    h = `<h3>Gamifikasi</h3><p>Mainkan permainannya untuk menguji pemahamanmu!</p>`
+      + frame(L.gamifikasi, "⏳ Permainan belum dipasang oleh tutor.");
+  }
+  panel.innerHTML = h + doneBtn(s);
+  bindDone(s);
+}
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => show(b.dataset.s));
+show("orientasi");
+</script></body></html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 3 – Cahaya Dipantulkan</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;padding:12px;background:#fff8e7;color:#333}
+canvas{width:100%;max-width:720px;background:#1b2440;border-radius:12px;display:block;margin:auto}
+.ctrl{max-width:720px;margin:10px auto;display:grid;gap:8px}
+label{font-weight:600}input[type=range]{width:100%}
+#msg{max-width:720px;margin:10px auto;padding:12px;border-radius:12px;font-size:18px;font-weight:700;text-align:center;background:#e4f0ff;color:#173c8a}
+h3{text-align:center;margin:4px}p.t{text-align:center;margin:4px}
+</style></head><body>
+<h3>🪞 Lab: Cahaya Dipantulkan</h3>
+<p class="t">Ubah sudut datang. Bandingkan dengan sudut pantulnya!</p>
+<canvas id="c" width="720" height="360"></canvas>
+<div class="ctrl">
+  <label>Sudut datang: <span id="v">45</span>° <input type="range" id="a" min="0" max="80" value="45"></label>
+  <label><input type="checkbox" id="kasar"> Ganti cermin dengan permukaan kasar</label>
+</div>
+<div id="msg"></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+const a=document.getElementById('a'),kasar=document.getElementById('kasar');
+const P={x:360,y:300},L=230;
+function ray(ang,col,w,dir){ // ang dari garis normal; dir -1 kiri, +1 kanan
+  const r=ang*Math.PI/180;
+  x.strokeStyle=col;x.lineWidth=w;x.lineCap='round';
+  x.beginPath();x.moveTo(P.x,P.y);x.lineTo(P.x+dir*L*Math.sin(r),P.y-L*Math.cos(r));x.stroke();
+}
+function draw(){
+  const i=+a.value,rough=kasar.checked;
+  document.getElementById('v').textContent=i;
+  x.clearRect(0,0,720,360);
+  // cermin / permukaan
+  if(rough){
+    x.fillStyle='#8a8a8a';x.beginPath();x.moveTo(100,330);
+    for(let k=100;k<=620;k+=13)x.lineTo(k,300+((k/13|0)%2?7:-4));
+    x.lineTo(620,330);x.fill();
+  }else{
+    x.fillStyle='#cfe9ff';x.fillRect(100,300,520,18);
+    x.fillStyle='#6b7a99';x.fillRect(100,318,520,10);
+  }
+  // garis normal
+  x.setLineDash([6,6]);x.strokeStyle='#fff';x.lineWidth=2;
+  x.beginPath();x.moveTo(P.x,P.y);x.lineTo(P.x,P.y-L);x.stroke();x.setLineDash([]);
+  // sinar datang
+  ray(i,'#ffd23f',6,-1);
+  // sinar pantul
+  if(rough){[-62,-30,8,36,64].forEach(s=>ray(Math.abs(s),'rgba(255,200,100,.7)',3,s<0?-1:1));}
+  else ray(i,'#ff6b6b',6,1);
+  x.fillStyle='#fff';x.font='bold 15px sans-serif';x.textAlign='left';
+  x.fillText('Garis normal',P.x+8,P.y-L+14);
+  x.fillText('Sinar datang',20,30);
+  x.fillText(rough?'Sinar pantul: menyebar ke segala arah':'Sinar pantul',rough?380:480,30);
+  document.getElementById('msg').textContent=rough
+   ?'Permukaan kasar: sinar dipantulkan ke banyak arah (pantulan baur), tidak terbentuk bayangan.'
+   :'Sudut datang = '+i+'°, sudut pantul = '+i+'°. Besarnya SAMA!';
+}
+a.oninput=draw;kasar.onchange=draw;draw();
+</script></body></html>

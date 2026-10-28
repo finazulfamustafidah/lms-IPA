@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Tutor</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><h1>👩‍🏫 Dashboard Tutor</h1><button class="btn sec" onclick="logout()">Keluar</button></header>
+<main>
+  <div class="card">
+    <h2>1. Pasang link video & gamifikasi</h2>
+    <p class="note">Boleh tempel link YouTube biasa, atau kode &lt;iframe&gt; dari Wordwall, Genially, LearningApps, dll. Disimpan di browser ini.</p>
+    <div id="form"></div>
+    <div class="row"><button class="btn green" id="simpan">💾 Simpan</button><span id="ok" class="note"></span></div>
+  </div>
+  <br>
+  <div class="card">
+    <h2>2. Agar link tampil di semua murid</h2>
+    <p class="note">Salin kode di bawah, lalu tempel menggantikan <b>DEFAULT_LINKS</b> di file <b>app.js</b> sebelum website di-upload.</p>
+    <textarea id="kode" rows="8" readonly></textarea>
+    <div class="row"><button class="btn" id="salin">📋 Salin kode</button></div>
+  </div>
+  <br>
+  <div class="card">
+    <h2>3. Progres murid (di browser ini)</h2>
+    <div style="overflow-x:auto"><table id="tbl"></table></div>
+    <div class="row"><button class="btn red" id="reset">🗑 Hapus data progres</button></div>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+const u = getUser();
+if (!u || u.role !== "tutor") location.href = "index.html";
+const links = getLinks();
+
+form.innerHTML = TEMA.map(t => `
+  <h3>${t.ikon} Tema ${t.id}: ${t.judul}</h3>
+  <label>Link video orientasi masalah (YouTube)</label>
+  <input id="o${t.id}" value="${(links[t.id].orientasi || "").replace(/"/g, "&quot;")}" placeholder="https://www.youtube.com/watch?v=...">
+  <label>Link gamifikasi</label>
+  <input id="g${t.id}" value="${(links[t.id].gamifikasi || "").replace(/"/g, "&quot;")}" placeholder="https://wordwall.net/embed/... atau YouTube">
+`).join("");
+
+function ambil() {
+  const o = {};
+  TEMA.forEach(t => o[t.id] = { orientasi: document.getElementById("o" + t.id).value.trim(), gamifikasi: document.getElementById("g" + t.id).value.trim() });
+  return o;
+}
+function buatKode() { kode.value = "const DEFAULT_LINKS = " + JSON.stringify(ambil(), null, 2) + ";"; }
+form.addEventListener("input", buatKode);
+simpan.onclick = () => { save("lms_links", ambil()); buatKode(); ok.textContent = "✅ Tersimpan"; setTimeout(() => ok.textContent = "", 2500); };
+salin.onclick = () => { kode.select(); document.execCommand("copy"); };
+
+function tabel() {
+  const p = getProgress(), names = Object.keys(p);
+  tbl.innerHTML = "<tr><th>Nama</th>" + TEMA.map(t => `<th>T${t.id}</th>`).join("") + "</tr>"
+    + (names.length ? names.map(n => `<tr><td>${n}</td>${TEMA.map(t => `<td>${pct(n, t.id)}%</td>`).join("")}</tr>`).join("")
+                    : `<tr><td colspan="${TEMA.length + 1}">Belum ada data.</td></tr>`);
+}
+reset.onclick = () => { if (confirm("Hapus semua data progres?")) { localStorage.removeItem("lms_progress"); tabel(); } };
+buatKode(); tabel();
+</script></body></html>
